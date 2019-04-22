@@ -1,15 +1,16 @@
 <template>
   <div class="toolbar">
-    <!-- 移动工具 -->
+    <!-- 工具 -->
     <li
       v-for="item in toolList"
       :key="item.id"
       :class="[item.type, item.id===activeId && 'active']"
+      :title="item.title"
       @click="changeTool(item)"
     ></li>
 
-    <!-- 前后景色 -->
-    <li class="singht" :style="`background-color:${frontColor};`"></li>
+    <!-- 前景色 -->
+    <li class="singht" :style="`background-color:${frontColor};`" title="前景色" @click="triggerPallet"></li>
   </div>
 </template>
 <script>
@@ -20,26 +21,32 @@ export default {
       activeId: 0,
       toolList: [
         {
+          title: '移动工具',
           type: "move",
           id: 1
         },
         {
+          title: '选区工具',
           type: "choose",
           id: 2
         },
         {
+          title: '裁剪工具',
           type: "clip",
           id: 3
         },
         {
+          title: '橡皮擦',
           type: "eraser",
           id: 4
         },
         {
+          title: '画笔',
           type: "draw",
           id: 5
         },
         {
+          title: '文本',
           type: "text",
           id: 6
         }
@@ -63,6 +70,9 @@ export default {
       }
 
       this.$store.commit("layout/updateOperation", type);
+    },
+    triggerPallet(){
+      this.$store.commit("layout/updatePalletStatus")
     }
   }
 };

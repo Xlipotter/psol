@@ -4,7 +4,7 @@
     <li>
       <div data-name="title">文件</div>
       <dl class="submenu">
-        <dd @click="build">新建</dd>
+        <!-- <dd @click="build">新建</dd> -->
         <dd>
           <span>打开</span>
           <input class="file" type="file" @change="chooseFile">
@@ -12,7 +12,6 @@
         <dd @click="save">保存</dd>
       </dl>
     </li>
-
 
     <!-- 图像 -->
     <li>
@@ -47,18 +46,19 @@ var self = {
     return {
       list: [],
       currentMenu: "",
-      innerHeight: window.innerHeight
+      innerHeight: window.innerHeight,
+      innerWidth: window.innerWidth
     };
   },
   computed: {
-    counter(){
-      return this.$store.state.layout.counter
+    counter() {
+      return this.$store.state.layout.counter;
     },
-    currentId(){
-      return this.$store.state.layout.currentId
+    currentId() {
+      return this.$store.state.layout.currentId;
     },
-    currentLayout(){
-      return this.$store.state.layout.currentLayout
+    currentLayout() {
+      return this.$store.state.layout.currentLayout;
     }
   },
   methods: {
@@ -72,36 +72,37 @@ var self = {
           // 插入到图层面板
           let imgH = image.height;
           let imgW = image.width;
+
           self.list.unshift({
-            obj: image, // image
+            obj: image,
             id: self.counter, // id
             name: file.name, // file name
-            imgSrc: data, // image path
-            x: (1024 - imgW) / 2, // x position
+            base64: data, // image path
+            type: 2,
+            x: (self.innerWidth - imgW) / 2, // x position
             y: (self.innerHeight - imgH) / 2, // y position
             width: imgW, // width of image
             height: imgH, // height of image
-            isShow: true // if show in viewer
+            isShow: true, // if show in viewer
           });
 
           // update store
-          self.$store.commit(
-            "layout/updateCounter",
-            (self.counter + 1)
-          );
+          self.$store.commit("layout/updateCounter", self.counter + 1);
           self.$store.commit("layout/updateLayout", self.list);
+
+          if (imgH > self.innerHeight) {
+            let zoom = self.innerHeight / imgH;
+            self.$store.commit("layout/updateZoom",zoom);
+          }
         };
       });
     },
     build() {},
-    save() {},
+    save() {
+      this.$store.commit("layout/updateFilter", "save");
+    },
     triggerFilter(method) {
-      var f = new filter({
-        context: this.currentLayout.layout.getContext('2d'),
-        width: this.currentLayout.width,
-        height: this.currentLayout.height
-      })
-      f[method]()
+      this.$store.commit("layout/updateFilter", method);
       
     }
   }

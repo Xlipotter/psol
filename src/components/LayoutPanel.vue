@@ -1,7 +1,7 @@
 <template>
   <div class="panel" ref="panel">
     <div class="head" ref="panelHead">面板</div>
-    <div class="operation">
+    <!-- <div class="operation">
       <select name class="mode">
         <option value="0">正常</option>
         <option value="1">正片叠底</option>
@@ -24,18 +24,18 @@
         <option value="18">差值</option>
         <option value="19">排除</option>
       </select>
-    </div>
+    </div> -->
     <div class="section">
       <li
         v-show="list.length > 0"
-        v-for="item in list"
+        v-for="(item, index) in list"
         :key="item.id"
         :class="{selected: item.id===currentId}"
-        @click="changeCurrentId(item.id)"
+        @click="changeCurrentId(item.id, index)"
         :id="item.id"
       >
         <div class="img">
-          <img :src="item.imgSrc" alt class="layout" :id="item.id">
+          <img :src="item.base64" alt class="layout" :id="item.id">
         </div>
 
         <div class="context">{{item.name}}</div>
@@ -44,8 +44,8 @@
     <!-- 图像混合 -->
     <!-- 透明度 -->
     <div class="footer">
-      <li @click="addLayout">+</li>
-      <li @click="deleteLayout">D</li>
+      <!-- <li @click="addLayout">+</li> -->
+      <li class="delete" @click="deleteLayout"></li>
     </div>
   </div>
 </template>
@@ -57,7 +57,7 @@ export default {
     list() {
       return this.$store.state.layout.layoutList;
     },
-    currentId(){
+    currentId() {
       return this.$store.state.layout.currentId;
     }
   },
@@ -68,16 +68,15 @@ export default {
     /**
      * @desc change current operating image layout
      */
-    changeCurrentId(id) {
-      this.$store.commit("layout/updateCurrentId", id);
-      
+    changeCurrentId(id,index) {
+      this.$store.commit("layout/updateCurrentId", {id,logicIndex:index});
     },
     addLayout() {
       // this.$store.commit('layout/updateLayout', this.$store.state.layout.layoutList.unshift())
     },
     deleteLayout() {
       if (this.currentId === -1) {
-        this.$toast('please select the layout first')
+        this.$toast("please select the layout first");
       }
       for (let n = 0, l = this.list.length; n < l; n++) {
         if (this.list[n].id === this.currentId) {
@@ -98,6 +97,10 @@ export default {
 <style lang="scss">
 /* 面板 */
 .panel {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-font-smoothing: antialiased;
   position: absolute;
   z-index: 10;
   right: 0;
@@ -119,7 +122,8 @@ export default {
     /* height: 0px; */
     width: 100%;
     padding: 10px;
-    display: flex;
+    // display: flex;
+    display: -webkit-box;
     align-items: flex-start;
     border-bottom: 1px solid #a7a7a7;
     cursor: pointer;
@@ -162,6 +166,7 @@ export default {
     width: 100%;
     border-top: 1px solid #656565;
     display: flex;
+    justify-content: flex-end;
     li {
       list-style: none;
       width: 24px;
@@ -172,7 +177,16 @@ export default {
       &:hover {
         background-color: #4d4d4d;
       }
+      &.delete {
+        background-image: url(../assets/images/delete.png);
+        background-position: 50% 50%;
+        background-repeat: no-repeat;
+        background-size: 16px 16px;
+      }
     }
   }
+}
+::-webkit-scrollbar {
+  width: 2px;
 }
 </style>

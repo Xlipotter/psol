@@ -6,6 +6,7 @@
     <Statusbar />
     <Layout />
     <ColorPanel />
+    <Canvas />
   </div>
 </template>
 
@@ -17,6 +18,7 @@ import LayoutPanel from "./components/LayoutPanel.vue";
 import Statusbar from "./components/Statusbar.vue";
 import Layout from "./components/Layout.vue";
 import ColorPanel from "./components/ColorPanel.vue";
+import Canvas from "./components/Canvas.vue"
 
 export default {
   name: "app",
@@ -26,7 +28,8 @@ export default {
     Statusbar,
     Layout,
     Menubar,
-    ColorPanel
+    ColorPanel,
+    Canvas
   }
 };
 </script>
@@ -37,13 +40,14 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
+  font-family: "MicroSoft YaHei";
 }
 * {
   box-sizing: border-box;
 }
 #app {
   background-color: #5c5c5c;
-  max-width: 1024px;
+  // max-width: 1024px;
   height: inherit;
   margin: auto;
   overflow: hidden;
@@ -61,7 +65,7 @@ body {
   left: 0;
   right: 0;
   height: 24px;
-  background-color: rgba(50, 50, 50, 0.5);
+  // background-color: rgb(141, 63, 63);
 }
 .footer .scale {
   width: 80px;

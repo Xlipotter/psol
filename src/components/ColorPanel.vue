@@ -1,12 +1,37 @@
 <template>
-  <div ref="panelCon" class="color_panel">
-    <div class="header">&gt;&gt;</div>
-    <div class="panel_con" @mousedown="triggerPanel">
-      <canvas ref="panel"/>
-      <div ref="cir" class="cir_point" :style="`top:${panelPoint.y - 2}px;left:${panelPoint.x - 2}px`"></div>
-    </div>
-    <canvas ref="range" class="range" @mousedown="triggerRange"/>
+  <div v-show="isShowPallet" ref="pallet" class="color_panel">
+    <!-- <div class="header">&gt;&gt;</div> -->
 
+    <!-- 色板 -->
+    <div
+      class="panel_con"
+      ref="panelCon"
+      @mousemove="colorPanel.unlock?moveOnPanel():''"
+      @mouseup="colorPanel.unlock?cancelMoveOnPanel():''"
+      @mouseleave="colorPanel.unlock?cancelMoveOnPanel():''"
+    >
+      <canvas ref="panel" @mousedown="triggerPanel"/>
+      <div
+        ref="cir"
+        class="cir_point"
+        :style="`top:${colorPanel.directorY - 2}px;left:${colorPanel.directorX - 2}px`"
+      ></div>
+    </div>
+
+    <!-- 色域 -->
+    <div
+      class="range_con"
+      ref="rangeCon"
+      @mousemove="colorRange.unlock?moveOnRange():''"
+      @mouseup="colorRange.unlock?cancelMoveOnRange():''"
+      @mouseleave="colorRange.unlock?cancelMoveOnRange():''"
+    >
+      <canvas ref="range" class="range" @mousedown="triggerRange"/>
+      <!-- 色域指示标 -->
+      <div class="director" :style="`top:${colorRange.directorY}px`"></div>
+    </div>
+
+    <!-- 数据面板 -->
     <div class="operator">
       <li>
         <span>R:&emsp;</span>
@@ -25,8 +50,6 @@
         <input v-model="channel.hex" type="text" readonly>
       </li>
     </div>
-    <div class="director" :style="`top:${directorY}px`"></div>
-    <div class="head"></div>
   </div>
 </template>
 <script>
@@ -63,19 +86,26 @@ export default {
   data() {
     return {
       colorRange: {
-        width: 20,
-        height: 256,
-        startY: 0,
-        moveY: 0,
-        ctx: null
+        width: 20, // 色域宽度
+        height: 256, // 色域高度
+        startY: 0, // mousedown 时 Y坐标
+        moveY: 0, // mousemove 时 Y坐标
+        ctx: null, // canvas上下文
+        unlock: false, // 是否解锁 move 事件
+        directorY: 10
       },
       colorPanel: {
         width: 256,
         height: 256,
-        ctx: null
-      },
-      directorY: 10,
-      panelPoint: { x: 255, y: 0 }
+        ctx: null,
+        unlock: false,
+        startX: 0,
+        moveX: 255,
+        startY: 0,
+        moveY: 0,
+        directorX: 255 + 10,
+        directorY: 10
+      }
     };
   },
   computed: {
@@ -86,6 +116,9 @@ export default {
         b: "0",
         hex: "ff0000"
       };
+    },
+    isShowPallet() {
+      return this.$store.state.layout.isShowPallet;
     }
   },
   mounted() {
@@ -235,31 +268,38 @@ export default {
     },
 
     triggerRange(e) {
-      let self = this;
-      let startY = e.target.offsetTop + e.target.parentNode.offsetTop;
-      let moveY;
-      let el = e.target;
-      const mouseMove = () => {
-        if (panelUpdatable) {
-          window.cancelAnimationFrame(raf);
-          let posY = Math.max(0, window.event.pageY - startY);
-          self.directorY = posY + 10;
-          let data = self.colorRange.ctx.getImageData(0, posY, 1, 1);
-          panelUpdatable = false;
-          rangeColor = data.data;
-          self.getCurrentColor()
-          self.updateColorPanel();
+      // let self = this;
+      this.colorRange.unlock = true;
+      this.colorRange.startY =
+        this.$refs.range.offsetTop +
+        this.$refs.rangeCon.offsetTop +
+        this.$refs.pallet.offsetTop;
+    },
+    moveOnRange() {
+      if (panelUpdatable) {
+        window.cancelAnimationFrame(raf);
+        let y = window.event.pageY - this.colorRange.startY;
+        if (y > 255) {
+          y = 255;
+        } else if (y < 0) {
+          y = 0;
         }
-      };
-      el.addEventListener("mousemove", mouseMove);
-      el.addEventListener("mouseleave", () => {
-        window.cancelAnimationFrame(raf);
-        el.removeEventListener("mousemove", mouseMove);
-      });
-      el.addEventListener("mouseup", () => {
-        window.cancelAnimationFrame(raf);
-        el.removeEventListener("mousemove", mouseMove);
-      });
+        this.colorRange.moveY = y;
+        this.colorRange.directorY = y + 10;
+        panelUpdatable = false;
+        rangeColor = this.colorRange.ctx.getImageData(
+          0,
+          this.colorRange.moveY,
+          1,
+          1
+        ).data;
+        this.getCurrentColor();
+        this.updateColorPanel();
+      }
+    },
+    cancelMoveOnRange() {
+      window.cancelAnimationFrame(raf);
+      this.colorRange.unlock = false;
     },
     updateColorPanel() {
       let self = this;
@@ -272,42 +312,49 @@ export default {
     },
 
     triggerPanel(e) {
-      let self = this;
-      let startX =
-        e.target.parentNode.offsetLeft +
-        e.target.parentNode.parentNode.offsetLeft;
-      let startY =
-        e.target.parentNode.offsetTop +
-        e.target.parentNode.parentNode.offsetTop;
-      let moveY, moveX;
-      let el = e.currentTarget;
-      const mouseMove = () => {
-        if (colorUpdatable) {
-          window.cancelAnimationFrame(raf2);
-          colorUpdatable = false;
+      this.colorPanel.unlock = true;
+      this.colorPanel.startX =
+        e.target.offsetLeft +
+        this.$refs.panelCon.offsetLeft +
+        this.$refs.pallet.offsetLeft;
+      this.colorPanel.startY =
+        e.target.offsetTop +
+        this.$refs.panelCon.offsetTop +
+        this.$refs.pallet.offsetTop;
+    },
+    moveOnPanel() {
+      if (colorUpdatable) {
+        window.cancelAnimationFrame(raf2);
+        colorUpdatable = false;
 
-          let posX = Math.max(0, window.event.pageX - startX);
-          let posY = Math.max(0, window.event.pageY - startY);
-
-          Object.assign(self.panelPoint, {
-            x: posX,
-            y: posY
-          });
-
-          self.getCurrentColor();
-
-          self.updateColor();
+        let x = window.event.pageX - this.colorPanel.startX;
+        let y = window.event.pageY - this.colorPanel.startY;
+        
+        if (y > 255) {
+          y = 255;
+        } else if (y < 0) {
+          y = 0;
         }
-      };
-      el.addEventListener("mousemove", mouseMove);
-      el.addEventListener("mouseleave", () => {
-        window.cancelAnimationFrame(raf2);
-        el.removeEventListener("mousemove", mouseMove);
-      });
-      el.addEventListener("mouseup", () => {
-        window.cancelAnimationFrame(raf2);
-        el.removeEventListener("mousemove", mouseMove);
-      });
+        if (x > 255) {
+          x = 255;
+        } else if (x < 0) {
+          x = 0;
+        }
+
+        Object.assign(this.colorPanel, {
+          directorX: x + 10,
+          directorY: y + 10,
+          moveX: x,
+          moveY: y
+        });
+
+        this.getCurrentColor();
+        this.updateColor();
+      }
+    },
+    cancelMoveOnPanel() {
+      window.cancelAnimationFrame(raf2);
+      this.colorPanel.unlock = false;
     },
     updateColor() {
       let self = this;
@@ -316,8 +363,8 @@ export default {
     },
     getCurrentColor() {
       panelColor = this.colorPanel.ctx.getImageData(
-        this.panelPoint.x,
-        this.panelPoint.y,
+        this.colorPanel.moveX,
+        this.colorPanel.moveY,
         1,
         1
       ).data;
@@ -336,14 +383,14 @@ export default {
         hex: `#${hexList.join("")}`
       });
 
-      this.$store.commit('layout/updateFrontColor', this.channel.hex)
+      this.$store.commit("layout/updateFrontColor", this.channel.hex);
     }
   }
 };
 </script>
 <style lang="scss" scoped>
 .color_panel {
-  .header{
+  .header {
     background-image: linear-gradient(0deg, #3c3c3c, #414141, #3c3c3c);
     text-align: right;
     color: #fff;
@@ -356,12 +403,11 @@ export default {
   background-color: #4d4d4d;
   display: flex;
   justify-content: space-between;
-  padding: 10px;
+  // padding-top: 10px;
   position: absolute;
   right: 0;
   top: 120px;
   z-index: 10;
-  .panel_con,
   .range {
     margin-right: 15px;
   }
@@ -398,9 +444,14 @@ export default {
     left: 306px;
     top: 10px;
   }
+  .range_con {
+    padding: 10px 0;
+  }
   .panel_con {
     position: relative;
     overflow: hidden;
+    margin-right: 5px;
+    padding: 10px;
     .cir_point {
       width: 5px;
       height: 5px;
@@ -410,6 +461,16 @@ export default {
       z-index: 2;
       top: -2px;
       left: 254px;
+    }
+  }
+  .operator {
+    padding-top: 10px;
+    padding-right: 10px;
+    span {
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-user-drag: none;
+      -webkit-font-smoothing: antialiased;
     }
   }
 }

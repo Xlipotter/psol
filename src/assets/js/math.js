@@ -15,6 +15,7 @@ Object.assign(filterMath, {
     }
     return newarr;
   },
+
   // 创建以当前点为原点，半径为X的方阵数组
   createMartixArray(num) {
     var arr = [];
@@ -25,6 +26,7 @@ Object.assign(filterMath, {
     }
     return arr;
   },
+
   // 计算分布的值
   weightingFactorValue(arrsource, arrvalue) {
     if (!arrvalue instanceof Array) {
@@ -45,7 +47,7 @@ Object.assign(filterMath, {
       val += arrvalue[i] * arrsource[i];
     }
     return parseInt(val);
-  }
+  },
 })
 
 // 二维正态分布
