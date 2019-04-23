@@ -36,6 +36,7 @@ export default {
 
         // save image
         if (state.filterMethod === "save") {
+          let els = document.querySelectorAll('.bg>.cvs');
           self.$refs.cvs.width = state.width;
           self.$refs.cvs.height = state.height;
           for (let n = self.list.length - 1; n >= 0; n--) {
@@ -45,14 +46,18 @@ export default {
               self.ctx.font = "14px MicroSoft YaHei";
               self.ctx.fillText(
                 self.list[n].name,
-                self.list[n].x,
-                self.list[n].y
+                // self.list[n].x,
+                // self.list[n].y
+                els[n].offsetLeft,
+                els[n].offsetTop
               );
             } else {
               self.ctx.drawImage(
                 self.list[n].obj,
-                self.list[n].x - state.x,
-                self.list[n].y - state.y
+                // self.list[n].x - state.x,
+                // self.list[n].y - state.y
+                els[n].offsetLeft,
+                els[n].offsetTop
               );
             }
           }

@@ -18,12 +18,13 @@
         :height="item.height"
         :style="`z-index:${10000-index}`"
         ref="cvs"
+        class="cvs"
       >
       <div 
         v-else-if="+item.type===1" 
         :key="item.id"
         :data-type="item.type"
-        class="text"
+        class="text cvs"
         :style="`z-index:${10000-index};top:${item.y}px;left:${item.x}px;color:${item.color}`"
         ref="cvs"
       >

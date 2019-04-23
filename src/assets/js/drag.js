@@ -41,7 +41,7 @@ const dragElementToMove = (eltrigger, el, startX, startY) => {
     // eltrigger.removeEventListener('mouseup', panelMouseUp);
     $(eltrigger).off('mousemove');
     $(eltrigger).off('mouseup');
-    window.cancelAnimationFrame(raf)
+    window.cancelAnimationFrame(raf);
   }
   $(eltrigger).on('mousemove', panelMouseMove);
   $(eltrigger).on('mouseup', panelMouseUp);

@@ -87,7 +87,7 @@ Filter.prototype = {
   blackWhite: function (w,h) {
     // 黑白
     let imgdata = this.context.getImageData(0, 0, w, h);
-    for (var i = 0; i < this.imgdata.data.length; i += 4) {
+    for (var i = 0; i < imgdata.data.length; i += 4) {
       var r = imgdata.data[i];
       var g = imgdata.data[i + 1];
       var b = imgdata.data[i + 2];

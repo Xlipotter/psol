@@ -103,7 +103,7 @@ export default {
   -webkit-font-smoothing: antialiased;
   position: absolute;
   z-index: 10;
-  right: 0;
+  right: 10px;
   width: 200px;
   height: 420px;
   overflow: auto;
@@ -118,6 +118,7 @@ export default {
     background-color: #333;
   }
   .section li {
+    overflow:hidden;
     list-style: none;
     /* height: 0px; */
     width: 100%;

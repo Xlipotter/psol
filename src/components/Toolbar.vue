@@ -25,26 +25,26 @@ export default {
           type: "move",
           id: 1
         },
-        {
-          title: '选区工具',
-          type: "choose",
-          id: 2
-        },
-        {
-          title: '裁剪工具',
-          type: "clip",
-          id: 3
-        },
-        {
-          title: '橡皮擦',
-          type: "eraser",
-          id: 4
-        },
-        {
-          title: '画笔',
-          type: "draw",
-          id: 5
-        },
+        // {
+        //   title: '选区工具',
+        //   type: "choose",
+        //   id: 2
+        // },
+        // {
+        //   title: '裁剪工具',
+        //   type: "clip",
+        //   id: 3
+        // },
+        // {
+        //   title: '橡皮擦',
+        //   type: "eraser",
+        //   id: 4
+        // },
+        // {
+        //   title: '画笔',
+        //   type: "draw",
+        //   id: 5
+        // },
         {
           title: '文本',
           type: "text",
